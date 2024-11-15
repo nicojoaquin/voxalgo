@@ -7,9 +7,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     super({
       datasources: {
         db: {
-          url: process.env.POSTGRES_URI,
-        },
-      },
+          url: process.env.POSTGRES_URI
+        }
+      }
     });
   }
 

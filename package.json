@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "voxalgo",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -21,7 +21,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/api/test/jest-e2e.json",
     "build:api": "nest build api",
-    "build:example": "nest build example"
+    "build:example": "nest build example",
+    "migrate:dev": "npx prisma migrate dev --schema=./libs/prisma/prisma/schema.prisma",
+    "generate": "npx prisma generate --schema=./libs/prisma/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -94,7 +96,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
+      "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
+      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1"
     }
   }
 }
