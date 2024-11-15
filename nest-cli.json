@@ -4,6 +4,15 @@
   "sourceRoot": "apps/api/src",
   "monorepo": true,
   "root": "apps/api",
+  "typeCheck": true,
+  "plugins": [
+    {
+      "name": "@nestjs/swagger",
+      "options": {
+        "introspectComments": true
+      }
+    }
+  ],
   "compilerOptions": {
     "webpack": true,
     "tsConfigPath": "apps/api/tsconfig.app.json"

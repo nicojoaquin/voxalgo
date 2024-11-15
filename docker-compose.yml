@@ -1,63 +1,66 @@
-version: '3'
+version: '3.8'
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    hostname: rabbitmq
-    volumes:
-      - /var/lib/rabbitmq
+  nats:
+    container_name: nats
+    image: nats:latest
     ports:
-      - '5672:5672'
-      - '15672:15672'
-    env_file:
-      - .env
+      - '4222:4222'
+    networks:
+      - backend
 
-  example:
-    build:
-      context: ./
-      dockerfile: ./apps/example/Dockerfile
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    container_name: postgres
+    restart: always
     ports:
-      - '8082:8082'
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
+      - '5432:5432'
     volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
-      - /usr/src/app/node_modules
-    command: npm run start:dev example # overrides CMD from dockerfile
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
   api:
+    container_name: voxalgo_api
     build:
-      context: ./
+      context: .
       dockerfile: ./apps/api/Dockerfile
     ports:
       - '8080:8080'
     env_file:
       - .env
     depends_on:
-      - rabbitmq
+      - nats
       - example
     volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
+      - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run start:dev api
+    networks:
+      - backend
 
-  postgres:
-    image: postgres
-    env_file:
-      - .env
-    ports:
-      - '5432:5432'
+  example:
+    build:
+      context: .
+      dockerfile: ./apps/example/Dockerfile
     volumes:
-      - ./db/data:/var/lib/postgresql/data
-
-  postgres_admin:
-    image: dpage/pgadmin4
-    depends_on:
-      - postgres
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/prisma
     env_file:
       - .env
-    ports:
-      - '15432:80'
+    environment:
+      POSTGRES_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      - nats
+      - postgres
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+networks:
+  backend:
+    driver: bridge

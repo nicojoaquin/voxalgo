@@ -1,21 +1,20 @@
 import { NestFactory } from '@nestjs/core';
-
-import { SharedService } from '@app/shared';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { ExampleModule } from './example.module';
 
 async function bootstrap() {
-  console.log('Starting example service...');
-  const app = await NestFactory.create(ExampleModule);
-  app.enableCors();
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    ExampleModule,
+    {
+      transport: Transport.NATS,
+      options: {
+        servers: [process.env.NATS_SERVER],
+        queue: process.env.EXAMPLE_QUEUE
+      }
+    }
+  );
 
-  const sharedService = app.get(SharedService);
-
-  const queue = process.env.RABBITMQ_EXAMPLE_QUEUE;
-
-  app.connectMicroservice(sharedService.getRmqOptions(queue));
-  await app.startAllMicroservices();
-
-  await app.listen(6000);
+  app.listen();
 }
 bootstrap();

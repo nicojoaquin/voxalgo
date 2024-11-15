@@ -1,10 +1,9 @@
-# compiled output
-/dist
-/node_modules
-/db/data
-/redis/data
+# Ignorar directorios compilados
+dist/
+node_modules/
+build/
 
-# Logs
+# Ignorar logs
 logs
 *.log
 npm-debug.log*
@@ -12,17 +11,16 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-.env
 
-# OS
+# Ignorar archivos del sistema operativo
 .DS_Store
 
-# Tests
-/coverage
-/.nyc_output
+# Ignorar carpetas de pruebas
+coverage/
+.nyc_output/
 
-# IDEs and editors
-/.idea
+# Ignorar configuraciones de IDEs y editores
+.idea/
 .project
 .classpath
 .c9/
@@ -30,9 +28,29 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 
-# IDE - VSCode
+# Ignorar configuraciones de VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Ignorar archivos dotenv (variables de entorno)
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Ignorar directorios temporales
+.temp
+.tmp
+
+# Ignorar archivos de datos de ejecución (runtime data)
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Ignorar reportes de diagnóstico
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
