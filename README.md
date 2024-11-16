@@ -40,7 +40,7 @@ cd voxalgo
 # Install dependencies
 npm install
 
-# Start the PostgreSQL service
+# Start the PostgreSQL service (need to have docker running on your system first)
 docker-compose up -d --build postgres
 
 # Run database migrations
