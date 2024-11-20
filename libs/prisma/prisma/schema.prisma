@@ -3,6 +3,14 @@ generator client {
   binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
+// enum AssistantType {
+//   type
+// }
+
+// enum AssistantModel {
+//   model
+// }
+
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_URI")
@@ -10,4 +18,143 @@ datasource db {
 
 model Test {
   id Int @id @default(autoincrement())
+}
+
+model Assistant {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  version String @unique()
+  name String
+  // type AssistantType //TODO: review with kevin
+  promt String
+  outboundJson Json
+  voice String
+  transcriber String
+  // model AssistantModel //TODO: review with kevin
+  preCallFunctions Json
+  postCallFunctions Json
+
+  tools Tools[]
+  calls Call[]
+}
+
+model Tools {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  // type ToolType //TODO: review with kevin
+  function Json
+  assistant Assistant? @relation(fields: [assistantId], references: [id])
+  assistantId String?
+}
+
+model Client {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  name String
+  orgId String
+  balance Float
+  industry String
+  phoneId String
+  email String
+  // assistantConfig Json //TODO: review with kevin
+
+  calls Call[]
+}
+
+model Call {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  orgId String
+  startTime DateTime
+  endTime DateTime
+  // status CallStatus //TODO: review with kevin
+  provider String
+  summary String
+  transcript String
+  recordingUrl String
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  assistant Assistant? @relation(fields: [assistantId], references: [id])
+  assistantId String?
+
+  inboundCall InboundCall?
+  outboundCall OutboundCall?
+}
+
+model InboundCall {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  sourceNumber String
+  // phoneId String //TODO: review with kevin
+  callerName String
+  reasonForCall String
+
+  call Call @relation(fields: [callId], references: [id])
+  callId String @id @unique()
+}
+
+model OutboundCall {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  destinationNumber String
+  timeZone String
+  scheduleTime DateTime
+  retryCount Int @default(0)
+  outboundPurpose String
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+  leadId String?
+
+  call Call @relation(fields: [callId], references: [id])
+  callId String @id @unique()
+}
+
+model Lead {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  name String
+  lastName String
+  email String
+  phone String
+  curStatus String
+  totalRetries Int @default(0)
+
+  outboundCalls OutboundCall[]
+  tremOutcomes TremOutcome[]
+}
+
+model TremOutcome {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  outcome String
+  countRetry Int @default(0) //TODO: review with kevin repeat
+  nextCallDelay Int
+  reqManualInteraction Boolean
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+  leadId String?
 }
