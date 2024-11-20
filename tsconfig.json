@@ -22,7 +22,9 @@
       ],
       "@app/prisma/*": [
         "libs/prisma/src/*"
-      ]
+      ],
+      "libs/*": ["libs/*"],
+      "libs/prisma/*": ["libs/prisma/*"]
     }
   }
 }

@@ -21,6 +21,19 @@ import { ConfigService } from '@nestjs/config';
         }),
         inject: [ConfigService]
       }
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: 'VOICE_GATEWAY_SERVICE',
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('VOICE_GATEWAY_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
+      }
     ])
   ],
   exports: [
@@ -32,6 +45,19 @@ import { ConfigService } from '@nestjs/config';
           options: {
             servers: [configService.get<string>('NATS_SERVER')],
             queue: configService.get<string>('EXAMPLE_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
+      }
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: 'VOICE_GATEWAY_SERVICE',
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('VOICE_GATEWAY_QUEUE')
           }
         }),
         inject: [ConfigService]
