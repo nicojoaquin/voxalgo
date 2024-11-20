@@ -4,7 +4,7 @@ import {
   CallDetails,
   CallResponse,
   CallStatus
-} from '../../../voice_gateway/src/interfaces/voice-gateway.interface';
+} from '../interfaces/voice-gateway.interface';
 import { VapiToolFunctionRequest, VapiToolFunctionResponse } from '../types/vapi.types';
 import { ConfigService } from '@nestjs/config';
 

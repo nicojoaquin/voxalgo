@@ -7,6 +7,9 @@
   "license": "UNLICENSED",
   "main": "dist/main.js",
   "scripts": {
+    "start:api": "nest start api --watch",
+    "start:example": "nest start example --watch",
+    "start:voice_gateway": "nest start voice_gateway --watch",
     "prebuild": "rimraf dist",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start:debug": "nest start --debug --watch",
