@@ -1,6 +1,5 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
-import { CallDetails, VoiceGateway } from 'apps/voice-gateway/src/interfaces/voice-gateway.interface';
-import { VapiGatewayService } from 'apps/voice-gateway/src/services/vapi-gateway.service';
+import { CallDetails, VoiceGateway } from 'apps/voice_gateway/src/interfaces/voice-gateway.interface';
 
 @Controller('voice-gateway')
 export class VoiceGatewayController {

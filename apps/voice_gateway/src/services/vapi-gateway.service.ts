@@ -4,20 +4,18 @@ import {
   CallDetails,
   CallResponse,
   CallStatus
-} from '../interfaces/voice-gateway.interface';
-import {
-  VapiToolFunctionRequest,
-  VapiToolFunctionResponse
-} from '../types/vapi.types';
+} from '../../../voice_gateway/src/interfaces/voice-gateway.interface';
+import { VapiToolFunctionRequest, VapiToolFunctionResponse } from '../types/vapi.types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class VapiGatewayService implements VoiceGateway {
   private readonly apiEndpoint: string;
   private readonly authToken: string;
 
-  constructor() {
-    this.apiEndpoint = process.env.VAPI_API_ENDPOINT || '';
-    this.authToken = process.env.VAPI_AUTH_TOKEN || '';
+  constructor(private config: ConfigService) {
+    this.apiEndpoint = config.get("VAPI_API_ENDPOINT") || '';
+    this.authToken = config.get("VAPI_AUTH_TOKEN") || '';
   }
 
   async initialize(): Promise<void> {

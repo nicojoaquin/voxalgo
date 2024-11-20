@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+  nats:
+    container_name: nats
+    image: nats:latest
+    ports:
+      - '4222:4222'
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:latest
+    env_file:
+      - .env
+    container_name: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  api:
+    container_name: voxalgo_api
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    ports:
+      - '8080:8080'
+    env_file:
+      - .env
+    depends_on:
+      - nats
+      - example
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - backend
+
+  example:
+    build:
+      context: .
+      dockerfile: ./apps/example/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    environment:
+      POSTGRES_URI: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      - nats
+      - postgres
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+networks:
+  backend:
+    driver: bridge

@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from './nats-client/nats-client.module';
 import { HealthModule } from './health/health.module';
-import { VoiceModule } from 'apps/voice-gateway/src/voice-gateway.module';
-
+import { ConfigModule } from '@nestjs/config';
+import { VoiceGatewayModule } from './voice-gateway/voice-gateway.module';
 @Module({
-  imports: [NatsClientModule, HealthModule, VoiceModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    NatsClientModule,
+    HealthModule,
+    VoiceGatewayModule
+  ]
 })
 export class AppModule {}

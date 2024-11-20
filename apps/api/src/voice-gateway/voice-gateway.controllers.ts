@@ -3,12 +3,11 @@ import { ClientProxy } from '@nestjs/microservices';
 import {
   CallDetails,
   VoiceGateway
-} from 'apps/voice-gateway/src/interfaces/voice-gateway.interface';
-import { VapiGatewayService } from 'apps/voice-gateway/src/services/vapi-gateway.service';
+} from 'apps/voice_gateway/src/interfaces/voice-gateway.interface';
 
-@Controller('voice')
-export class VoiceController {
-  constructor(@Inject('VOICE_SERVICE') private client: ClientProxy) {}
+@Controller('voice-gateway')
+export class VoiceGatewayController {
+  constructor(@Inject('VOICE_GATEWAY_SERVICE') private client: ClientProxy) {}
 
   /*
 
