@@ -16,7 +16,7 @@ async function bootstrap() {
   );
   console.log(
     'Microservice listening on NATS queue:',
-    process.env.VOICE_GATEWAY_QUEUE
+    process.env.EXAMPLE_QUEUE
   );
   app.listen();
 }

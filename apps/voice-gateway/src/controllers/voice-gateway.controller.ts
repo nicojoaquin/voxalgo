@@ -1,15 +1,20 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { VapiGatewayService } from '../services/vapi-gateway.service';
 import { CallDetails } from '../interfaces/voice-gateway.interface';
 @Controller()
 export class VoiceController {
-  constructor(private readonly voiceService: VapiGatewayService) {}
+  constructor(
+    @Inject('VoiceGateway') private readonly voiceService: VapiGatewayService
+  ) {}
 
   @MessagePattern('voice-gateway.make-call')
   async makeCall(@Payload() params: CallDetails) {
-    console.log('Received message for pattern "voice-gateway.make-call":', params);
-    return { message: 'Hello from Example Service!'};
+    console.log(
+      'Received message for pattern "voice-gateway.make-call":',
+      params
+    );
+    return { message: 'Hello from Example Service!' };
     //return this.voiceService.makeCall(params);
   }
 
