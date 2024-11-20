@@ -13,12 +13,32 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           queue: process.env.EXAMPLE_QUEUE
         }
       }
+    ]),
+    ClientsModule.register([
+      {
+        name: 'VOICE_SERVICE',
+        transport: Transport.NATS,
+        options: {
+          servers: [process.env.NATS_SERVER],
+          queue: process.env.EXAMPLE_QUEUE
+        }
+      }
     ])
   ],
   exports: [
     ClientsModule.register([
       {
         name: 'EXAMPLE_SERVICE',
+        transport: Transport.NATS,
+        options: {
+          servers: [process.env.NATS_SERVER],
+          queue: process.env.EXAMPLE_QUEUE
+        }
+      }
+    ]),
+    ClientsModule.register([
+      {
+        name: 'VOICE_SERVICE',
         transport: Transport.NATS,
         options: {
           servers: [process.env.NATS_SERVER],
