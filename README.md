@@ -40,17 +40,8 @@ cd voxalgo
 # Install dependencies
 npm install
 
-# Start the PostgreSQL service (need to have docker running on your system first)
-docker-compose up -d --build postgres
-
-# Run database migrations
-npm run migrate:dev
-
-# Generate Prisma client
-npm run generate
-
-# Build the application image
-npm run docker:build
+# Start and build Docker Compose, run and generate migrations (need to have docker running on your system first)
+npm run db:setup
 
 # Start the development server
 npm run dev
