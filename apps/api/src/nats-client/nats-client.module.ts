@@ -1,29 +1,66 @@
 import { Global, Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import {
+  ClientsModule,
+  Transport,
+  ClientProvider
+} from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'EXAMPLE_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: [process.env.NATS_SERVER],
-          queue: process.env.EXAMPLE_QUEUE
-        }
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('EXAMPLE_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
+      }
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: 'VOICE_GATEWAY_SERVICE',
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('VOICE_GATEWAY_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
       }
     ])
   ],
   exports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'EXAMPLE_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: [process.env.NATS_SERVER],
-          queue: process.env.EXAMPLE_QUEUE
-        }
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('EXAMPLE_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
+      }
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: 'VOICE_GATEWAY_SERVICE',
+        useFactory: (configService: ConfigService): ClientProvider => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [configService.get<string>('NATS_SERVER')],
+            queue: configService.get<string>('VOICE_GATEWAY_QUEUE')
+          }
+        }),
+        inject: [ConfigService]
       }
     ])
   ]
