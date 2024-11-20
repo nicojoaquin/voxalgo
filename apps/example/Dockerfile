@@ -12,4 +12,4 @@ COPY . .
 RUN npx prisma generate --schema=./libs/prisma/prisma/schema.prisma
 RUN npm run build:example
 
-CMD [ "npm", "run", "start:dev", "example" ]
+CMD [ "npm", "run", "start", "example" ]
