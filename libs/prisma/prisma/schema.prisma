@@ -68,6 +68,8 @@ model Client {
   // assistantConfig Json //TODO: review with kevin
 
   calls Call[]
+  customers Customer[]
+  billings Billing[]
 }
 
 model Call {
@@ -93,6 +95,10 @@ model Call {
 
   inboundCall InboundCall?
   outboundCall OutboundCall?
+
+  callLog CallLog?
+
+  billing Billing?
 }
 
 model InboundCall {
@@ -101,9 +107,11 @@ model InboundCall {
   deletedAt  DateTime? 
 
   sourceNumber String
-  // phoneId String //TODO: review with kevin
   callerName String
   reasonForCall String
+
+  customer Customer? @relation(fields: [customerId], references: [code])
+  customerId String?
 
   call Call @relation(fields: [callId], references: [id])
   callId String @id @unique()
@@ -157,4 +165,106 @@ model TremOutcome {
 
   lead Lead? @relation(fields: [leadId], references: [id])
   leadId String?
+}
+
+model CallLog {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  timestamp DateTime
+
+  call Call? @relation(fields: [callId], references: [id])
+  callId String? @unique()
+  // sourceAction String //TODO: review with kevin
+}
+
+model Customer {
+  code        String   @id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  number String
+  phoneId String
+  name String
+  apiToken String
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  calls InboundCall[]
+}
+
+model Billing {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  amount Float
+  currency String
+  billingDate DateTime
+
+  call Call? @relation(fields: [callId], references: [id])
+  callId String? @unique()
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  prepaidBilling PrePaidBilling?
+  postpaidBilling PostPaidBilling?
+}
+
+model PrePaidBilling {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  balanceRemaining Float
+  rechargeAmount Float
+  lastRechargeDate DateTime
+
+  billing Billing @relation(fields: [billingId], references: [id])
+  billingId String @id @unique()
+}
+
+model PostPaidBilling {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  dueDate DateTime
+  creditLimit Float
+  overdueChanges Float
+  billingCycle String
+  lastPaymentDate DateTime
+
+  billing Billing @relation(fields: [billingId], references: [id])
+  billingId String @id @unique()
+}
+
+model User {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  username String @unique
+  phoneNumber String
+  phoneId String
+}
+
+model Admin {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  username String @unique
+  email String
+  // role Role //TODO: review with kevin
+  password String
+  phoneNumber String
 }
