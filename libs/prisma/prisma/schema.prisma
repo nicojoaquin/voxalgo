@@ -3,6 +3,14 @@ generator client {
   binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
+enum CallStatus {
+  Queued
+  Ringing
+  InProgress
+  Forwarding
+  Ended
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_URI")
@@ -10,4 +18,226 @@ datasource db {
 
 model Test {
   id Int @id @default(autoincrement())
+}
+
+model Assistant {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  version String?
+  name String?
+  promt String?
+  outboundJson Json?
+  voice String?
+  transcriber String?
+  model Json? 
+}
+
+model Client {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  name String
+  orgId String
+  balance Float
+  industry String
+  phoneId String @unique()
+  email String
+
+  calls Call[]
+  customers Customer[]
+  billings Billing[]
+}
+
+model Call {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  orgId String
+  startTime DateTime
+  endTime DateTime
+  status CallStatus
+  provider String
+  summary String
+  transcript String
+  recordingUrl String
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  inboundCall InboundCall?
+  outboundCall OutboundCall?
+
+  callLog CallLog?
+
+  billing Billing?
+}
+
+model InboundCall {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  sourceNumber String
+  callerName String
+  reasonForCall String
+
+  customer Customer? @relation(fields: [customerId], references: [code])
+  customerId String?
+
+  call Call @relation(fields: [callId], references: [id])
+  callId String @id @unique()
+}
+
+model OutboundCall {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  destinationNumber String
+  timeZone String
+  scheduleTime DateTime
+  retryCount Int @default(0)
+  outboundPurpose String
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+  leadId String?
+
+  call Call @relation(fields: [callId], references: [id])
+  callId String @id @unique()
+}
+
+model Lead {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  name String
+  lastName String
+  email String
+  phone String
+  curStatus String
+
+  outboundCalls OutboundCall[]
+  tremOutcomes TremOutcome[]
+}
+
+model TremOutcome {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  outcome String
+  countRetry Int @default(0) //TODO: review with kevin repeat
+  nextCallDelay Int
+  newLeadActive Boolean
+  reqManualInteraction Boolean
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+  leadId String?
+}
+
+model CallLog {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  timestamp DateTime
+  orgId String
+  endedReason String
+  structuredData Json
+  name String
+  language String
+  assistant String
+  generatedLead Boolean
+
+  call Call? @relation(fields: [callId], references: [id])
+  callId String? @unique()
+}
+
+model Customer {
+  id         String   @id @default(uuid())
+  code        String   @unique()
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  number String
+  phoneId String @unique()
+  name String
+  apiToken String
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  calls InboundCall[]
+}
+
+model Billing {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  amount Float
+  currency String
+  billingDate DateTime
+
+  call Call? @relation(fields: [callId], references: [id])
+  callId String? @unique()
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  prepaidBilling PrePaidBilling?
+  postpaidBilling PostPaidBilling?
+}
+
+model PrePaidBilling {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  balanceRemaining Float
+  rechargeAmount Float
+  lastRechargeDate DateTime
+
+  billing Billing @relation(fields: [billingId], references: [id])
+  billingId String @id @unique()
+}
+
+model PostPaidBilling {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  dueDate DateTime
+  creditLimit Float
+  overdueChanges Float
+  billingCycle String
+  lastPaymentDate DateTime
+
+  billing Billing @relation(fields: [billingId], references: [id])
+  billingId String @id @unique()
+}
+
+model Admin {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  username String @unique()
+  email String
+  password String
+  phoneNumber String
 }
