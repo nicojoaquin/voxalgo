@@ -1,9 +1,14 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
-import { CallDetails, VoiceGateway } from 'apps/voice_gateway/src/interfaces/voice-gateway.interface';
+import {
+  CallDetails,
+  VoiceGateway
+} from 'apps/voice-gateway/src/interfaces/voice-gateway.interface';
 
 @Controller('voice-gateway')
 export class VoiceGatewayController {
-  constructor(@Inject("VoiceGateway") private readonly voiceGateway: VoiceGateway) {}
+  constructor(
+    @Inject('VoiceGateway') private readonly voiceGateway: VoiceGateway
+  ) {}
 
   @Post('make-call')
   async makeCall(@Body() params: CallDetails) {

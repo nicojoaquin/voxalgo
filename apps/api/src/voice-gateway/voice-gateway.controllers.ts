@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import {
   CallDetails,
   VoiceGateway
-} from 'apps/voice_gateway/src/interfaces/voice-gateway.interface';
+} from 'apps/voice-gateway/src/interfaces/voice-gateway.interface';
 
 @Controller('voice-gateway')
 export class VoiceGatewayController {
