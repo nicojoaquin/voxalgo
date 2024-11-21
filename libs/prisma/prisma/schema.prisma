@@ -3,13 +3,13 @@ generator client {
   binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
-// enum AssistantType {
-//   type
-// }
-
-// enum AssistantModel {
-//   model
-// }
+enum CallStatus {
+  Queued
+  Ringing
+  InProgress
+  Forwarding
+  Ended
+}
 
 datasource db {
   provider = "postgresql"
@@ -26,31 +26,13 @@ model Assistant {
   updatedAt   DateTime @updatedAt
   deletedAt  DateTime? 
 
-  version String @unique()
-  name String
-  // type AssistantType //TODO: review with kevin
-  promt String
-  outboundJson Json
-  voice String
-  transcriber String
-  // model AssistantModel //TODO: review with kevin
-  preCallFunctions Json
-  postCallFunctions Json
-
-  tools Tools[]
-  calls Call[]
-}
-
-model Tools {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  // type ToolType //TODO: review with kevin
-  function Json
-  assistant Assistant? @relation(fields: [assistantId], references: [id])
-  assistantId String?
+  version String?
+  name String?
+  promt String?
+  outboundJson Json?
+  voice String?
+  transcriber String?
+  model Json? 
 }
 
 model Client {
@@ -63,9 +45,8 @@ model Client {
   orgId String
   balance Float
   industry String
-  phoneId String
+  phoneId String @unique()
   email String
-  // assistantConfig Json //TODO: review with kevin
 
   calls Call[]
   customers Customer[]
@@ -81,7 +62,7 @@ model Call {
   orgId String
   startTime DateTime
   endTime DateTime
-  // status CallStatus //TODO: review with kevin
+  status CallStatus
   provider String
   summary String
   transcript String
@@ -89,9 +70,6 @@ model Call {
 
   client Client? @relation(fields: [clientId], references: [id])
   clientId String?
-
-  assistant Assistant? @relation(fields: [assistantId], references: [id])
-  assistantId String?
 
   inboundCall InboundCall?
   outboundCall OutboundCall?
@@ -146,7 +124,6 @@ model Lead {
   email String
   phone String
   curStatus String
-  totalRetries Int @default(0)
 
   outboundCalls OutboundCall[]
   tremOutcomes TremOutcome[]
@@ -161,6 +138,7 @@ model TremOutcome {
   outcome String
   countRetry Int @default(0) //TODO: review with kevin repeat
   nextCallDelay Int
+  newLeadActive Boolean
   reqManualInteraction Boolean
 
   lead Lead? @relation(fields: [leadId], references: [id])
@@ -174,20 +152,27 @@ model CallLog {
   deletedAt  DateTime? 
 
   timestamp DateTime
+  orgId String
+  endedReason String
+  structuredData Json
+  name String
+  language String
+  assistant String
+  generatedLead Boolean
 
   call Call? @relation(fields: [callId], references: [id])
   callId String? @unique()
-  // sourceAction String //TODO: review with kevin
 }
 
 model Customer {
-  code        String   @id
+  id         String   @id @default(uuid())
+  code        String   @unique()
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt  DateTime? 
 
   number String
-  phoneId String
+  phoneId String @unique()
   name String
   apiToken String
 
@@ -245,26 +230,14 @@ model PostPaidBilling {
   billingId String @id @unique()
 }
 
-model User {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  username String @unique
-  phoneNumber String
-  phoneId String
-}
-
 model Admin {
   id         String   @id @default(uuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt  DateTime? 
 
-  username String @unique
+  username String @unique()
   email String
-  // role Role //TODO: review with kevin
   password String
   phoneNumber String
 }
