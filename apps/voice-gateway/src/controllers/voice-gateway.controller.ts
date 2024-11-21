@@ -10,12 +10,7 @@ export class VoiceController {
 
   @MessagePattern('voice-gateway.make-call')
   async makeCall(@Payload() params: CallDetails) {
-    console.log(
-      'Received message for pattern "voice-gateway.make-call":',
-      params
-    );
-    return { message: 'Hello from Example Service!' };
-    //return this.voiceService.makeCall(params);
+    return this.voiceService.makeCall(params);
   }
 
   @MessagePattern('voice-gateway.end-call')
@@ -30,6 +25,10 @@ export class VoiceController {
 
   @MessagePattern('voice-gateway.send-assistant-config')
   async sendAssistantConfig(@Payload() configData: string) {
-    return this.voiceService.sendAssistantConfig(configData);
+    const response = await this.voiceService.sendAssistantConfig(configData);
+    return {
+      message: 'Assistant configuration processed successfully',
+      response
+    };
   }
 }

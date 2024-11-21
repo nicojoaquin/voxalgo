@@ -26,8 +26,13 @@ export class VoiceGatewayController {
 
   @Post('send-assistant-config')
   async sendAssistantConfig(@Body('configData') configData: string) {
-    return lastValueFrom(
-      this.client.send('voice-gateway.send-assistant-config', configData)
-    );
+    try {
+      return await lastValueFrom(
+        this.client.send('voice-gateway.send-assistant-config', configData)
+      );
+    } catch (error) {
+      console.error('Error in sendAssistantConfig:', error);
+      throw error;
+    }
   }
 }
