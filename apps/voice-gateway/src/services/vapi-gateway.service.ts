@@ -11,15 +11,18 @@ import {
   CallStatus,
   VoiceGateway
 } from '../interfaces/voice-gateway.interface';
+import { VapiClient } from '@vapi-ai/server-sdk';
 
 @Injectable()
 export class VapiGatewayService implements VoiceGateway {
   private readonly apiEndpoint: string;
   private readonly authToken: string;
+  private readonly client: VapiClient;
 
   constructor(private config: ConfigService) {
     this.apiEndpoint = config.get('VAPI_API_ENDPOINT') || '';
     this.authToken = config.get('VAPI_AUTH_TOKEN') || '';
+    this.client = new VapiClient({ token: this.authToken });
   }
 
   async initialize(): Promise<void> {
