@@ -11,7 +11,7 @@ import {
   CallStatus,
   VoiceGateway
 } from '../interfaces/voice-gateway.interface';
-import { VapiClient } from '@vapi-ai/server-sdk';
+import { VapiClient, Vapi } from '@vapi-ai/server-sdk';
 
 @Injectable()
 export class VapiGatewayService implements VoiceGateway {
@@ -25,8 +25,22 @@ export class VapiGatewayService implements VoiceGateway {
     this.client = new VapiClient({ token: this.authToken });
   }
 
-  async initialize(): Promise<void> {
-    console.log('Initializing VAPI Gateway...');
+  async initialize() {
+    const res = await this.client.assistants.create({
+      firstMessage: 'Hey Ryan, how are you?',
+      model: {
+        provider: 'openai',
+        model: 'gpt-4-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: "You're Ryan's assistant..."
+          }
+        ]
+      }
+    });
+
+    return { res };
   }
 
   async makeCall(params: CallDetails): Promise<CallResponse> {

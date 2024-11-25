@@ -9,6 +9,11 @@ import {
 export class VoiceGatewayController {
   constructor(@Inject('VOICE_GATEWAY_SERVICE') private client: ClientProxy) {}
 
+  @Post()
+  async initialize() {
+    return this.client.send('voice.initialize', {});
+  }
+
   /*
 
   @Post('make-call')

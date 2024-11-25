@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
+import { EventPattern } from '@nestjs/microservices';
 import {
   CallDetails,
   VoiceGateway
@@ -9,6 +10,11 @@ export class VoiceGatewayController {
   constructor(
     @Inject('VoiceGateway') private readonly voiceGateway: VoiceGateway
   ) {}
+
+  @EventPattern('voice.initialize')
+  async initialize() {
+    return await this.voiceGateway.initialize();
+  }
 
   @Post('make-call')
   async makeCall(@Body() params: CallDetails) {
