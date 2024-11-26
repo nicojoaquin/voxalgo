@@ -17,6 +17,7 @@
     "start:dev": "nest start --watch",
     "db:setup": "npm run docker:start && npm run migrate:dev && npm run generate",
     "dev": "npx concurrently \"npm run start:dev api\" \"npm run start:dev example\" \"npm run start:dev voice-gateway\"",
+    "develop": "npm run docker:start && npm run dev",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
