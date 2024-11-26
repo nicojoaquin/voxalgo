@@ -45,6 +45,15 @@
         "tsConfigPath": "apps/example/tsconfig.app.json"
       }
     },
+    "voice-gateway": {
+      "type": "application",
+      "root": "apps/voice-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/voice-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/voice-gateway/tsconfig.app.json"
+      }
+    },
     "prisma": {
       "type": "library",
       "root": "libs/prisma",

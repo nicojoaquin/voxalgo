@@ -1,59 +1,87 @@
-/*
+import { Test, TestingModule } from '@nestjs/testing';
 import { VapiGatewayService } from './vapi-gateway.service';
-import { CallDetails } from '../../../voice_gateway/src/interfaces/voice-gateway.interface';
+import { ConfigService } from '@nestjs/config';
+import { CallDetails } from '../interfaces/voice-gateway.interface';
+import { VapiToolFunctionRequest } from '../types/vapi.types';
 
 describe('VapiGatewayService', () => {
   let service: VapiGatewayService;
-  let spy: jest.SpyInstance;
+  const mockConfigService = {
+    get: jest.fn((key: string) => {
+      if (key === 'VAPI_API_ENDPOINT') return 'http://mock.api.endpoint';
+      if (key === 'VAPI_AUTH_TOKEN') return 'mock-token';
+      return null;
+    })
+  };
 
-  beforeEach(() => {
-    service = new VapiGatewayService();
-    spy = jest.spyOn(console, 'log').mockImplementation(() => {}); // Evita interferencias con otros logs
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        VapiGatewayService,
+        { provide: ConfigService, useValue: mockConfigService }
+      ]
+    }).compile();
+
+    service = module.get<VapiGatewayService>(VapiGatewayService);
   });
 
-  afterEach(() => {
-    spy.mockRestore();
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
-  it('should initialize the VAPI Gateway', async () => {
+  it('should initialize the service', async () => {
+    const consoleSpy = jest.spyOn(console, 'log');
     await service.initialize();
-    expect(spy).toHaveBeenCalledWith('Initializing VAPI Gateway...');
+    expect(consoleSpy).toHaveBeenCalledWith('Initializing VAPI Gateway...');
   });
 
-  it('should make a call and return a callId and status', async () => {
-    const callDetails: CallDetails = { to: '+1234567890', from: '+0987654321' };
-    const response = await service.makeCall(callDetails);
-    expect(response).toEqual({ callId: 'vapi-call-123', status: 'queued' });
-    expect(spy).toHaveBeenCalledWith(
-      'Making call to +1234567890 from +0987654321'
-    );
+  it('should make a call', async () => {
+    const callDetails: CallDetails = { to: '123456789', from: '987654321' };
+    const result = await service.makeCall(callDetails);
+    expect(result).toEqual({ callId: 'vapi-call-123', status: 'queued' });
   });
 
-  it('should fetch the status of a call', async () => {
-    const status = await service.getCallStatus('vapi-call-123');
-    expect(status).toEqual({
-      callId: 'vapi-call-123',
+  it('should end a call', async () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+    const callId = 'vapi-call-123';
+    await service.endCall(callId);
+    expect(consoleSpy).toHaveBeenCalledWith(`Ending call ${callId} via VAPI`);
+  });
+
+  it('should get call status', async () => {
+    const callId = 'vapi-call-123';
+    const result = await service.getCallStatus(callId);
+    expect(result).toEqual({
+      callId,
       status: 'completed',
       duration: 180
     });
-    expect(spy).toHaveBeenCalledWith(
-      'Fetching status for call vapi-call-123 via VAPI'
-    );
   });
 
-  it('should end a call successfully', async () => {
-    await service.endCall('vapi-call-123');
-    expect(spy).toHaveBeenCalledWith('Ending call vapi-call-123 via VAPI'); // Nota: cambia según el mensaje real.
+  it('should send assistant config', async () => {
+    const configData = 'test-config';
+    const result = await service.sendAssistantConfig(configData);
+    expect(result).toEqual('Processed configuration: test-config');
   });
 
-  it('should send assistant configuration successfully', async () => {
-    const spy = jest.spyOn(console, 'log');
-    const configData = '{"name": "Assistant"}';
-    await service.sendAssistantConfig(configData);
-    expect(spy).toHaveBeenCalledWith(
-      'Sending assistant configuration to VAPI:',
-      configData
-    );
+  it('should execute a tool function', async () => {
+    const toolRequest: VapiToolFunctionRequest = {
+      id: 'tool-1',
+      type: 'function', 
+      function: {
+        name: 'processBooking',
+        arguments: { key: 'value' }
+      }
+    };
+
+    const result = await service.executeToolFunction(toolRequest);
+    expect(result).toEqual({
+      results: [
+        {
+          tool_call_id: 'tool-1',
+          result: { message: 'Function executed successfully' }
+        }
+      ]
+    });
   });
 });
-*/
