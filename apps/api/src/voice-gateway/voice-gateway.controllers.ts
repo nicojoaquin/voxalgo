@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Inject, Get } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   CallDetails,
@@ -8,6 +8,16 @@ import {
 @Controller('voice-gateway')
 export class VoiceGatewayController {
   constructor(@Inject('VOICE_GATEWAY_SERVICE') private client: ClientProxy) {}
+
+  @Get()
+  async initialize() {
+    return this.client.send('voice.initialize', {});
+  }
+
+  @Post('update-assistant')
+  updateAssistant(@Body() data: any) {
+    return { data };
+  }
 
   /*
 
