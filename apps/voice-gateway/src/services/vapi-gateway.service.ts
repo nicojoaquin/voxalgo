@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
-
+import {
+  VoiceGateway,
+  CallDetails,
+  CallResponse,
+  CallStatus
+} from '../interfaces/voice-gateway.interface';
 import {
   VapiToolFunctionRequest,
   VapiToolFunctionResponse
 } from '../types/vapi.types';
 import { ConfigService } from '@nestjs/config';
-import {
-  CallDetails,
-  CallResponse,
-  CallStatus,
-  VoiceGateway
-} from '../interfaces/voice-gateway.interface';
 import { VapiClient } from '@vapi-ai/server-sdk';
 
 @Injectable()
@@ -58,17 +57,27 @@ export class VapiGatewayService implements VoiceGateway {
     return { callId, status: 'completed', duration: 180 };
   }
 
-  async sendAssistantConfig(configData: string): Promise<void> {
-    console.log('Sending assistant configuration to VAPI:', configData);
+  async sendAssistantConfig(configData: string): Promise<string> {
+    // Simulate the processing logic
+    const processedConfig = `Processed configuration: ${configData}`;
+    console.log('Processed config: ', configData);
+    return processedConfig;
   }
 
   async executeToolFunction(
     toolRequest: VapiToolFunctionRequest
   ): Promise<VapiToolFunctionResponse> {
-    console.log(`Executing tool function ${toolRequest.functionName} via VAPI`);
+    console.log(
+      `Executing tool function ${toolRequest.function.name} via VAPI`
+    );
+    const result = { message: 'Function executed successfully' };
     return {
-      success: true,
-      result: { message: 'Function executed successfully' }
+      results: [
+        {
+          tool_call_id: toolRequest.id, // Use the ID from the request
+          result: result // Attach the function result here
+        }
+      ]
     };
   }
 }

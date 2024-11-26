@@ -10,6 +10,6 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate --schema=./libs/prisma/prisma/schema.prisma
-RUN npm run build:example
+RUN npm run build:voice-gateway
 
-CMD [ "npm", "run", "start", "example" ]
+CMD [ "npm", "run", "start", "voice-gateway" ]

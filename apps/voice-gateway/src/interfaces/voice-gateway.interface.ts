@@ -3,7 +3,7 @@ export interface VoiceGateway {
   makeCall(params: CallDetails): Promise<CallResponse>;
   endCall(callId: string): Promise<void>;
   getCallStatus(callId: string): Promise<CallStatus>;
-  sendAssistantConfig(configData: string): Promise<void>;
+  sendAssistantConfig(configData: string): Promise<string>;
 }
 
 export type CallDetails = {
