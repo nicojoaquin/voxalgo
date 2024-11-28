@@ -56,26 +56,11 @@ model AssistantConfig {
   updatedAt   DateTime @updatedAt //not accepted in payload to VAPI
   deletedAt  DateTime? //not accepted in payload to VAPI
 
-  version String?
-  name String?
-  voice String?
-  transcriber String?
-  model Json? 
-  firstMessage String?
-  endCallMessage String?
-  endCallFunctionEnabled Boolean?
-  silenceTimeoutSeconds Int?
-  serverMessages Json?
-  responseDelaySeconds Int?
-  serverUrl String?
-  endCallPhrases Json?
-  llmRequestDelaySeconds Int?
-  maxDurationSeconds Int?
-  numWordsToInterruptAssistant Int?
-  backgroundSound String?
-  analysisPlan Json?
-  backgroundDenoisingEnabled Boolean?
-  messagePlan Json?
+  transcriber Json
+  model Json
+  firstMessage String
+  endCallFunctionEnabled Boolean
+  serverUrl String
 
   clientId String @unique
   client   Client @relation(fields: [clientId], references: [id])
