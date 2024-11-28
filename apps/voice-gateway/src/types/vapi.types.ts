@@ -114,7 +114,7 @@ export interface Model {
     description?: string;
     parameters?: FunctionDefinition | any;
   }[];
-  provider: string;
+  provider: string; 
   url?: string;
 }
 export interface Voice {
