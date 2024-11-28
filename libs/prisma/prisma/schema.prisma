@@ -21,18 +21,64 @@ model Test {
 }
 
 model Assistant {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
+  id         String   @id @default(uuid()) //not accepted in payload to VAPI
+  createdAt   DateTime @default(now()) //not accepted in payload to VAPI
+  updatedAt   DateTime @updatedAt //not accepted in payload to VAPI
+  deletedAt  DateTime? //not accepted in payload to VAPI
 
   version String?
   name String?
-  promt String?
+  prompt String?
   outboundJson Json?
   voice String?
   transcriber String?
   model Json? 
+  firstMessage String?
+  endCallMessage String?
+  endCallFunctionEnabled Boolean?
+  silenceTimeoutSeconds Int?
+  serverMessages Json?
+  responseDelaySeconds Int?
+  serverUrl String?
+  endCallPhrases Json?
+  llmRequestDelaySeconds Int?
+  maxDurationSeconds Int?
+  numWordsToInterruptAssistant Int?
+  backgroundSound String?
+  analysisPlan Json?
+  backgroundDenoisingEnabled Boolean?
+  messagePlan Json?
+}
+
+model AssistantConfig {
+  id         String   @id @default(uuid()) //not accepted in payload to VAPI
+  createdAt   DateTime @default(now()) //not accepted in payload to VAPI
+  updatedAt   DateTime @updatedAt //not accepted in payload to VAPI
+  deletedAt  DateTime? //not accepted in payload to VAPI
+
+  version String?
+  name String?
+  voice String?
+  transcriber String?
+  model Json? 
+  firstMessage String?
+  endCallMessage String?
+  endCallFunctionEnabled Boolean?
+  silenceTimeoutSeconds Int?
+  serverMessages Json?
+  responseDelaySeconds Int?
+  serverUrl String?
+  endCallPhrases Json?
+  llmRequestDelaySeconds Int?
+  maxDurationSeconds Int?
+  numWordsToInterruptAssistant Int?
+  backgroundSound String?
+  analysisPlan Json?
+  backgroundDenoisingEnabled Boolean?
+  messagePlan Json?
+
+  clientId String @unique
+  client   Client @relation(fields: [clientId], references: [id])
 }
 
 model Client {
@@ -47,10 +93,11 @@ model Client {
   industry String
   phoneId String @unique()
   email String
-
+  preCallFunctions Json? //list of names/ids of the functions of each client // sendWhatsapp
   calls Call[]
   customers Customer[]
   billings Billing[]
+  assistantConfig  AssistantConfig?
 }
 
 model Call {
@@ -171,6 +218,8 @@ model Customer {
   updatedAt   DateTime @updatedAt
   deletedAt  DateTime? 
 
+  sipUri   String? @unique
+  
   number String
   phoneId String @unique()
   name String
