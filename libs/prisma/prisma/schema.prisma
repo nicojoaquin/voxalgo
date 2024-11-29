@@ -3,67 +3,73 @@ generator client {
   binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
-enum CallStatus {
-  Queued
-  Ringing
-  InProgress
-  Forwarding
-  Ended
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_URI")
+}
+
+enum CallDirection {
+  Inbound
+  Outbound
 }
 
 model Test {
   id Int @id @default(autoincrement())
 }
 
-model Assistant {
-  id         String   @id @default(uuid()) //not accepted in payload to VAPI
-  createdAt   DateTime @default(now()) //not accepted in payload to VAPI
-  updatedAt   DateTime @updatedAt //not accepted in payload to VAPI
-  deletedAt  DateTime? //not accepted in payload to VAPI
+model ClientPhone {
+  id         String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
 
-  version String?
-  name String?
-  prompt String?
-  outboundJson Json?
-  voice String?
-  transcriber String?
-  model Json? 
-  firstMessage String?
-  endCallMessage String?
-  endCallFunctionEnabled Boolean?
-  silenceTimeoutSeconds Int?
-  serverMessages Json?
-  responseDelaySeconds Int?
-  serverUrl String?
-  endCallPhrases Json?
-  llmRequestDelaySeconds Int?
-  maxDurationSeconds Int?
-  numWordsToInterruptAssistant Int?
-  backgroundSound String?
-  analysisPlan Json?
-  backgroundDenoisingEnabled Boolean?
-  messagePlan Json?
+  phoneId String @unique()
+  phoneNumber String
+  provider String
+
+  client Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  assistants Assistant[]
 }
 
-model AssistantConfig {
-  id         String   @id @default(uuid()) //not accepted in payload to VAPI
-  createdAt   DateTime @default(now()) //not accepted in payload to VAPI
-  updatedAt   DateTime @updatedAt //not accepted in payload to VAPI
-  deletedAt  DateTime? //not accepted in payload to VAPI
+//Inbound
+//Client phone with phone id
+//Select the assitant to use
+//merge base, prompt, knowledgeBase and tools
+//run preCallFunctions in order to replace the name holders with the values they return
+//return the json to vapi
+//run postCallFunctions using the information of the ended call
 
-  transcriber Json
-  model Json
-  firstMessage String
-  endCallFunctionEnabled Boolean
-  serverUrl String
+//Outbound
+//Other part of the system make a request to the server to make a call
+//Client phone with phone id
+//Select the assitant to use
+//merge base, prompt, knowledgeBase and tools
+//run preCallFunctions in order to replace the name holders with the values they return
+//post to vapi api /call
+//run postCallFunctions using the information of the ended call
 
-  clientId String @unique
-  client   Client @relation(fields: [clientId], references: [id])
+model Assistant {
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt  DateTime? 
+
+  direction CallDirection 
+  version String 
+
+  base Json
+  prompt String
+  knowledgeBase String
+
+  tools Json
+  preCallFunctions Json? //list of names/ids of the functions of each client // sendWhatsapp
+  postCallFunctions Json? //list of names/ids of the functions of each client // sendWhatsapp
+
+  clientPhone ClientPhone @relation(fields: [clientPhoneId], references: [id])
+  clientPhoneId String @unique()
+
+  @@id([clientPhoneId, direction, version]) //Always have to select the last version
 }
 
 model Client {
@@ -72,110 +78,20 @@ model Client {
   updatedAt   DateTime @updatedAt
   deletedAt  DateTime? 
 
+  masterClientId String @unique
+
   name String
   orgId String
   balance Float
   industry String
-  phoneId String @unique()
   email String
-  preCallFunctions Json? //list of names/ids of the functions of each client // sendWhatsapp
-  calls Call[]
+  contactNumber String
+
+  clientsPhones ClientPhone[]
   customers Customer[]
   billings Billing[]
-  assistantConfig  AssistantConfig?
 }
 
-model Call {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  orgId String
-  startTime DateTime
-  endTime DateTime
-  status CallStatus
-  provider String
-  summary String
-  transcript String
-  recordingUrl String
-
-  client Client? @relation(fields: [clientId], references: [id])
-  clientId String?
-
-  inboundCall InboundCall?
-  outboundCall OutboundCall?
-
-  callLog CallLog?
-
-  billing Billing?
-}
-
-model InboundCall {
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  sourceNumber String
-  callerName String
-  reasonForCall String
-
-  customer Customer? @relation(fields: [customerId], references: [code])
-  customerId String?
-
-  call Call @relation(fields: [callId], references: [id])
-  callId String @id @unique()
-}
-
-model OutboundCall {
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  destinationNumber String
-  timeZone String
-  scheduleTime DateTime
-  retryCount Int @default(0)
-  outboundPurpose String
-
-  lead Lead? @relation(fields: [leadId], references: [id])
-  leadId String?
-
-  call Call @relation(fields: [callId], references: [id])
-  callId String @id @unique()
-}
-
-model Lead {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  name String
-  lastName String
-  email String
-  phone String
-  curStatus String
-
-  outboundCalls OutboundCall[]
-  tremOutcomes TremOutcome[]
-}
-
-model TremOutcome {
-  id         String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt  DateTime? 
-
-  outcome String
-  countRetry Int @default(0) //TODO: review with kevin repeat
-  nextCallDelay Int
-  newLeadActive Boolean
-  reqManualInteraction Boolean
-
-  lead Lead? @relation(fields: [leadId], references: [id])
-  leadId String?
-}
 
 model CallLog {
   id         String   @id @default(uuid())
@@ -188,12 +104,7 @@ model CallLog {
   endedReason String
   structuredData Json
   name String
-  language String
-  assistant String
-  generatedLead Boolean
-
-  call Call? @relation(fields: [callId], references: [id])
-  callId String? @unique()
+  // assistant 
 }
 
 model Customer {
@@ -212,8 +123,6 @@ model Customer {
 
   client Client? @relation(fields: [clientId], references: [id])
   clientId String?
-
-  calls InboundCall[]
 }
 
 model Billing {
@@ -226,8 +135,6 @@ model Billing {
   currency String
   billingDate DateTime
 
-  call Call? @relation(fields: [callId], references: [id])
-  callId String? @unique()
 
   client Client? @relation(fields: [clientId], references: [id])
   clientId String?
