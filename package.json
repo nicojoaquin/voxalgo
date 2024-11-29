@@ -27,7 +27,10 @@
     "build:api": "nest build api",
     "build:example": "nest build example",
     "migrate:dev": "npx prisma migrate dev --schema=./libs/prisma/prisma/schema.prisma",
-    "generate": "npx prisma generate --schema=./libs/prisma/prisma/schema.prisma"
+    "generate": "npx prisma generate --schema=./libs/prisma/prisma/schema.prisma",
+    "seed": "ts-node ./libs/prisma/seeds/index.ts",
+    "reset": "npx prisma migrate reset --schema=./libs/prisma/prisma/schema.prisma",
+    "studio": "npx prisma studio --schema=./libs/prisma/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

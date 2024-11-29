@@ -11,7 +11,6 @@ import {
 } from '../types/vapi.types';
 import { ConfigService } from '@nestjs/config';
 import { VapiClient, Vapi } from '@vapi-ai/server-sdk';
-import axios from 'axios';
 import { log } from 'console';
 
 @Injectable()
@@ -106,31 +105,13 @@ export class VapiGatewayService implements VoiceGateway {
     return payload;
   }
 
-  async listAssistants() {
-    try {
-      const response = await axios.get(`${this.apiEndpoint}/assistant`, {
-        headers: {
-          Authorization: `Bearer ${this.authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(
-        'Error creating assistant:',
-        error.response?.data || error.message
-      );
-      throw new Error('Failed to create assistant.');
-    }
-  }
-
   async initialize() {
     console.log('Preparing payload to send to VAPI...');
 
     // Create the assistant
     const assistant = await this.sendAssistant();
-    
-    return {assistant};
+
+    return { assistant };
   }
 
   /*
